@@ -1,0 +1,261 @@
+\documentclass[11pt]{amsart}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=2.4cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{seminarblue}{RGB}{20,40,80}
+\hypersetup{colorlinks=true, linkcolor=seminarblue, citecolor=seminarblue,
+  urlcolor=seminarblue,
+  pdftitle={From spectra to univalence: a first tour of HoTT},
+  pdfauthor={C. Galindo}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.32em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{axiom}[theorem]{Axiom}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\Uni}{\mathcal{U}}
+\newcommand{\isProp}{\mathsf{isProp}}
+\newcommand{\isContr}{\mathsf{isContr}}
+\newcommand{\refl}{\mathsf{refl}}
+\newcommand{\Scirc}{S^1}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries From spectra to univalence: a first tour of homotopy type theory}\\[1em]
+{\large César Galindo}\\[0.3em]
+{\small Expository note --- written for a reader who already thinks in
+terms of spaces, homotopies, and fibrations (as one does after a thesis
+on orthogonal spectra), meeting type theory for the first time.}
+\end{center}
+
+\vspace{0.5em}
+
+\begin{center}
+\begin{minipage}{0.86\textwidth}
+\small
+\textsc{Aim.} To build up the basic notions of Homotopy Type Theory ---
+identity types, the univalence axiom, mere propositions, and higher
+inductive types --- entirely as translations of things a homotopy
+theorist already knows: paths, homotopies of maps, contractibility, and
+a CW-type presentation of the circle. The payoff, exactly as in
+\cite[\S 8.1]{HoTTBook}, is a synthetic computation of $\pi_1(\Scirc)$
+that never mentions points, open sets, or a model of space at all.
+\end{minipage}
+\end{center}
+
+\vspace{1em}
+
+\section{Types as spaces}\label{sec:types-as-spaces}
+
+The guiding dictionary of \cite[\S 2.1]{HoTTBook} is: a \emph{type} $A$
+behaves like a space, a \emph{term} $a:A$ behaves like a point of that
+space, and a \emph{dependent type} $B(x)$ for $x:A$ behaves like a
+fibration $B\to A$. Under this dictionary, equality itself becomes
+homotopical: for $x,y:A$ there is not a proposition but a \emph{type}
+$x=_A y$, whose terms are witnesses that $x$ and $y$ agree --- to be
+read as \emph{paths} from $x$ to $y$ in the space $A$.
+
+\begin{definition}[Identity type, {\cite[\S 1.12]{HoTTBook}}]\label{def:identity-type}
+  For a type $A$ and $x,y:A$, the \emph{identity type} $x=_A y$ is the
+  type of paths from $x$ to $y$. Every $x:A$ has a canonical path
+  $\refl_x : x=_A x$.
+\end{definition}
+
+\begin{theorem}[Path induction, {\cite[\S 1.12]{HoTTBook}}]\label{thm:path-induction}
+  Let $A$ be a type and let
+  \[
+    D : \prod_{x,y:A} (x=_A y) \to \Uni
+  \]
+  be a family of types indexed by pairs of points of $A$ together with a
+  path between them. If there is a term $d(x) : D(x,x,\refl_x)$ for
+  every $x:A$, then there is a term $f(x,y,p):D(x,y,p)$ for every
+  $x,y:A$ and every $p:x=_A y$, with $f(x,x,\refl_x)\equiv d(x)$.
+\end{theorem}
+
+Path induction says exactly that, to construct something along an
+arbitrary path, it suffices to construct it along the constant path.
+Every basic homotopy-theoretic fact about identity types --- symmetry,
+transitivity, functoriality of paths under maps --- is proved this way,
+mirroring how one proves facts about a space by proving them on a
+contractible neighborhood of the diagonal.
+
+\section{Function extensionality and the univalence axiom}\label{sec:univalence}
+
+Two functions that agree pointwise are, in ordinary mathematics, simply
+equal; in type theory this has to be an axiom, and it turns out to be a
+special case of something much stronger.
+
+\begin{definition}[Equivalence, {\cite[\S 4.1, \S 4.4]{HoTTBook}}]\label{def:equivalence}
+  A function $f:A\to B$ is an \emph{equivalence} if its homotopy fibers
+  $\mathrm{fib}_f(b) := \sum_{a:A}(f(a)=_B b)$ are contractible for
+  every $b:B$. Write $A\simeq B$ for the type of equivalences between
+  $A$ and $B$.
+\end{definition}
+
+For every type $A$ there is a canonical equivalence $\mathrm{id}_A:A\simeq A$, hence a canonical map
+\[
+  \mathsf{idtoeqv} \;:\; (A=_{\Uni} B) \longrightarrow (A\simeq B)
+\]
+sending $\refl_A$ to $\mathrm{id}_A$, for any two types $A,B$ in a
+universe $\Uni$.
+
+\begin{axiom}[Univalence, {\cite[\S 2.10]{HoTTBook}}]\label{ax:univalence}
+  For every universe $\Uni$ and all $A,B:\Uni$, the map
+  $\mathsf{idtoeqv}:(A=_{\Uni}B)\to(A\simeq B)$ is itself an equivalence.
+\end{axiom}
+
+Informally: \emph{equivalent types are equal}, and equal in a way that
+is itself faithfully recorded by the equivalence one started with. This
+is Voevodsky's univalence axiom, the one that gives this repository its
+name and this document's subtitle: it is the single extra principle
+that turns bare type theory into a foundation where isomorphism
+invariance is built in at the syntactic level, rather than imposed
+afterwards by fiat.
+
+\begin{theorem}[{\cite[\S 2.9, \S 4.9]{HoTTBook}}]\label{thm:univalence-implies-funext}
+  Univalence (Axiom~\ref{ax:univalence}) implies function extensionality:
+  for $f,g:\prod_{x:A}B(x)$, the canonical map
+  $(f=g)\to\prod_{x:A}(f(x)=g(x))$ is an equivalence.
+\end{theorem}
+
+So the pointwise-equality principle a working mathematician reaches for
+instinctively is not a separate axiom bolted onto type theory: it falls
+out of univalence, the same way many closure properties of weak
+equivalences in a model category fall out of one saturation axiom
+rather than needing to be checked case by case.
+
+\section{Mere propositions}\label{sec:mere-props}
+
+Not every type behaves like a genuine ``space with interesting paths'';
+some behave like ordinary logical propositions, with at most one path
+between any two of their points.
+
+\begin{definition}[{\cite[\S 3.3, \S 3.11]{HoTTBook}}]\label{def:mere-prop}
+  A type $A$ is a \emph{mere proposition}, $\isProp(A)$, when
+  $\prod_{x,y:A}(x=_A y)$ is inhabited. It is \emph{contractible},
+  $\isContr(A)$, when $\sum_{a:A}\prod_{x:A}(a=x)$ is inhabited: a mere
+  proposition that is, in addition, inhabited.
+\end{definition}
+
+\begin{remark}\label{rmk:contractible-fibers}
+  Definition~\ref{def:equivalence} can now be read literally: $f$ is an
+  equivalence exactly when each of its fibers is a contractible type,
+  i.e.\ a space that is homotopy equivalent to a point --- precisely
+  the fiberwise condition a homotopy theorist would write down for a
+  weak equivalence of spaces or of orthogonal spectra.
+\end{remark}
+
+\section{A higher inductive type: the circle}\label{sec:circle}
+
+Ordinary inductive types are generated by point constructors. A
+\emph{higher} inductive type is also allowed path constructors ---
+generators of its identity type --- which is exactly how one builds
+genuinely homotopical spaces synthetically.
+
+\begin{definition}[The circle, {\cite[\S 6.3--6.4]{HoTTBook}}]\label{def:circle}
+  The type $\Scirc$ is generated by
+  \begin{itemize}[leftmargin=1.6em]
+    \item a point $\mathsf{base}:\Scirc$, and
+    \item a path $\mathsf{loop}:\mathsf{base}=_{\Scirc}\mathsf{base}$,
+  \end{itemize}
+  together with an induction principle: to construct a section of a
+  family $D:\Scirc\to\Uni$, it suffices to give a point
+  $d_{\mathsf{base}}:D(\mathsf{base})$ together with a path
+  $d_{\mathsf{base}}=d_{\mathsf{base}}$ lying over $\mathsf{loop}$.
+\end{definition}
+
+No quotient of an interval, no CW attaching map, no point-set model is
+needed to say this: the circle is presented purely by what one is
+allowed to induct on.
+
+\section{Payoff: \texorpdfstring{$\pi_1(\Scirc)\simeq\ZZ$}{pi\_1(S1) = Z} synthetically}\label{sec:payoff}
+
+\begin{theorem}[{\cite[Thm.~8.1.1]{HoTTBook}}]\label{thm:pi1-circle}
+  $(\mathsf{base}=_{\Scirc}\mathsf{base}) \;\simeq\; \ZZ$, and hence
+  $\pi_1(\Scirc,\mathsf{base})\cong\ZZ$ as groups.
+\end{theorem}
+
+\begin{remark}[Sketch of the encode--decode method, {\cite[\S 8.1]{HoTTBook}}]\label{rmk:encode-decode}
+  The proof constructs a family $\mathsf{code}:\Scirc\to\Uni$ by the
+  recursion principle of Definition~\ref{def:circle}, sending $\mathsf{base}$ to
+  $\ZZ$ and transporting along $\mathsf{loop}$ via the
+  successor equivalence $\ZZ\simeq\ZZ$; univalence
+  (Axiom~\ref{ax:univalence}) is exactly what makes this transport along a
+  \emph{loop} land back on $\ZZ$ rather than on some new, unnamed type.
+  Maps $\mathsf{encode}:(\mathsf{base}=\mathsf{base})\to\mathsf{code}(\mathsf{base})$
+  and $\mathsf{decode}$ in the other direction are then shown to be
+  mutually inverse, by path induction (Theorem~\ref{thm:path-induction}) on one
+  side and induction on $\ZZ$ on the other. Full details, including the
+  fiberwise statement over all of $\Scirc$ that makes the induction go
+  through, are in \cite[\S 8.1]{HoTTBook}.
+\end{remark}
+
+\begin{remark}[Why this belongs next to a thesis on orthogonal spectra]\label{rmk:bridge-to-thesis}
+  Computing $\pi_1(\Scirc)$ is, of course, elementary in classical
+  homotopy theory. What is new here is not the answer but the method:
+  the computation above never leaves type theory to invoke a
+  topological model of the circle, a simplicial set, or a spectrum ---
+  it is carried out entirely by induction principles internal to the
+  type $\Scirc$ itself. The spectral-sequence techniques of
+  \texttt{Theses\_Galindo.tex} compute homotopy invariants \emph{of} a
+  fixed point-set or simplicial model; univalent foundations instead
+  asks what invariants can be defined \emph{without ever choosing a
+  model at all}. Whether, or how, the orthogonal tower of that thesis
+  admits a synthetic, univalent presentation is not addressed here ---
+  it is left as an open question, not a claim.
+\end{remark}
+
+\section{Takeaways}\label{sec:takeaways}
+
+\begin{itemize}[leftmargin=1.6em]
+  \item Equality between points of a type is itself a type, built by
+    the identity-type former, and everything about it is proved by
+    path induction (Definition~\ref{def:identity-type} and Theorem~\ref{thm:path-induction}).
+  \item Univalence says equivalent types are equal, and it alone forces
+    function extensionality as a theorem rather than a separate
+    postulate (Axiom~\ref{ax:univalence} and Theorem~\ref{thm:univalence-implies-funext}).
+  \item Mere propositions and contractible types
+    (Definition~\ref{def:mere-prop}) let Definition~\ref{def:equivalence}'s
+    fiberwise definition of equivalence read exactly like a homotopy
+    theorist's definition of weak equivalence.
+  \item Higher inductive types generate spaces by their induction
+    principle alone; the circle (Definition~\ref{def:circle}) is the simplest
+    nontrivial example.
+  \item The synthetic computation $\pi_1(\Scirc)\simeq\ZZ$
+    (Theorem~\ref{thm:pi1-circle}) is the standard first demonstration that
+    this machinery computes real homotopy-theoretic invariants without
+    a background model of space.
+\end{itemize}
+
+\begin{thebibliography}{9}
+
+\bibitem[UFP13]{HoTTBook}
+The Univalent Foundations Program,
+\emph{Homotopy Type Theory: Univalent Foundations of Mathematics},
+Institute for Advanced Study, 2013.
+Book version \texttt{first-edition-697-gcffb6ea}.
+\url{http://homotopytypetheory.org/book/}.
+
+\end{thebibliography}
+
+\end{document}
